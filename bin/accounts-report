@@ -93,11 +93,13 @@ const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
     }
   }
 
-  console.log(chalk`
+  if (errors.length > 0) {
+    console.log(chalk`
 
   {bold.red Errors}
   `);
-  console.log(errorsReport(errors));
+    console.log(errorsReport(errors));
+  }
 })();
 
 function prepareErrorReport() {
