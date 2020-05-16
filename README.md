@@ -36,3 +36,17 @@ files ending in .json
 _Expected Output_
 
 ![Account Keys Report](/assets/keys-report-output.png)
+
+## Storage Report
+
+Generate a report of decoded state stored on an account
+
+- Run `yarn storage <account>`
+
+_Expected Output_
+
+![Storage Report](/assets/storage-report-output.png)
+
+_Alternate Expected Output_
+
+![Storage Report with no output](/assets/storage-report-no-output.png)
