@@ -1,0 +1,161 @@
+#!/usr/bin/env node
+
+/*
+
+What is this?
+-------------
+
+Generate a report of account keys on the NEAR network by scanning ~/.near-credentials for all
+files ending in .json
+
+  Usage:
+
+  yarn keys
+
+
+Sample Report
+-------------
+
+
+  Access Keys Report
+
+╔════════════════════════════════╤══════════════════╤══════════════════════════════════════════╤═══════╤══════════════════╗
+║                        account │              key │ type                                     │ nonce │           status ║
+╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
+║       contract1.a_user.testnet │   ed25519:AiozBb │ FullAccess                               │   1   │            Local ║
+╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
+║                 a_user.testnet │   ed25519:Fk91Nw │ FullAccess                               │   3   │            Local ║
+║                                │   ed25519:22WrPY │ FullAccess                               │   0   │        Not Found ║
+║                                │   ed25519:Doqp9g │ FunctionCall ( dev-1588779149087 )       │   2   │        Not Found ║
+╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
+║               demo_app.testnet │   ed25519:7ifwfQ │ FullAccess                               │   1   │            Local ║
+╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
+║ contract1.another_user.testnet │   ed25519:2CrU9K │ FullAccess                               │   1   │            Local ║
+╚════════════════════════════════╧══════════════════╧══════════════════════════════════════════╧═══════╧══════════════════╝
+
+  Errors Report
+
+╔════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════╗
+║       contract.no_user.testnet │ account not found on [ testnet ]                                                       ║
+╟────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────╢
+║                no_user.testnet │ account not found on [ testnet ]                                                       ║
+╚════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════╝
+*/
+
+const path = require("path");
+
+const { table, createStream } = require("table");
+const chalk = require("chalk");
+
+const home = require("os").homedir();
+const credentials = path.resolve(home, ".near-credentials");
+
+const {
+  fetchAccounts,
+  fetchAccessKeys,
+  publicKeyFromFile,
+} = require("../lib/utils");
+
+(async () => {
+  const network = "testnet";
+  const localAccounts = await fetchAccounts(credentials, network);
+
+  console.log(chalk`
+  {bold Access Keys Report}
+  `);
+
+  let errors = [];
+  let errorsReport = prepareErrorReport();
+  let data = ["account", "key", "type", "nonce", "status"].map((el) =>
+    chalk.bold(el)
+  );
+
+  let accountsReport = prepareAccountsReport();
+  accountsReport.write(data);
+
+  for (const account of Object.keys(localAccounts)) {
+    try {
+      const localKey = publicKeyFromFile(localAccounts[account]);
+      const keys = await fetchAccessKeys(account);
+
+      const pks = keys.map((key) => key.public_key.slice(0, 14));
+
+      const types = keys.map((entry) => {
+        let key = entry.access_key.permission;
+        switch (typeof key) {
+          case "string":
+            return chalk`{yellow ${key}}`;
+            break;
+
+          case "object":
+            let type = Object.keys(key);
+            let details = Object.values(key)[0];
+            return chalk`{cyan ${type}} ( ${details.receiver_id} )`;
+            break;
+
+          default:
+            throw new Error(`Unrecognized key type:[ ${key} ]`);
+            break;
+        }
+      });
+
+      const nonces = keys.map((entry) => entry.access_key.nonce);
+
+      const statuses = keys.map((key) =>
+        key.public_key == localKey
+          ? chalk`{green Local}`
+          : chalk`{red Not Found}`
+      );
+
+      data = [];
+      data.push(account);
+      data.push(pks.join("\n"));
+      data.push(types.join("\n"));
+      data.push(nonces.join("\n"));
+      data.push(statuses.join("\n"));
+
+      accountsReport.write(data);
+    } catch (error) {
+      if (/does not exist while viewing/.test(error)) {
+        errors.push([
+          account,
+          chalk`account {bold.red not found} on [ {bold ${network}} ]`,
+        ]);
+      } else {
+        console.log(error);
+      }
+    }
+  }
+
+  console.log(chalk`
+
+  {bold.red Errors Report}
+  `);
+  console.log(errorsReport(errors));
+})();
+
+function prepareErrorReport() {
+  return (data) => {
+    return table(data, {
+      columnCount: 2,
+      columns: {
+        0: { width: 30, alignment: "right" },
+        1: { width: 86, alignment: "left" },
+      },
+    });
+  };
+}
+
+function prepareAccountsReport() {
+  return createStream({
+    columnDefault: { width: 16 },
+    columnCount: 5,
+    columns: {
+      0: { width: 30, alignment: "right" },
+      1: { alignment: "right" },
+      2: { width: 40, alignment: "left" },
+      3: { width: 5, alignment: "center" },
+      4: { alignment: "right" },
+    },
+  });
+}

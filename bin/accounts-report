@@ -1,0 +1,137 @@
+#!/usr/bin/env node
+
+/*
+
+What is this?
+-------------
+
+Generate a report of accounts on the NEAR network by scanning ~/.near-credentials for all
+files ending in .json
+
+  Usage:
+
+  yarn accounts
+
+
+Linux / macOS
+-------------
+
+To find all TestNet accounts and copy them to your NEAR credentials folder
+
+(1) move to a top level folder containing all NEAR projects (ie. with neardev folders)
+(2) run this command:
+    find . -type f -name '*.testnet.json' -exec cp '{}' ~/.near-credentials ';'
+
+
+
+Sample Report
+-------------
+
+
+  Accounts Report
+
+╔════════════════════════════════╤══════════════════╤══════════════════╤══════════════════╗
+║                        account │          balance │        contract? │     storage used ║
+╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
+║       contract1.a_user.testnet │             $ 99 │           5KjqNZ │        42.513 kb ║
+╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
+║                 a_user.testnet │          $ 3,094 │             None │         0.388 kb ║
+╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
+║               demo_app.testnet │             $ 99 │           AdsqrQ │       102.218 kb ║
+╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
+║ contract1.another_user.testnet │             $ 99 │           Cy5sM6 │        41.102 kb ║
+╚════════════════════════════════╧══════════════════╧══════════════════╧══════════════════╝
+
+  Errors Report
+
+╔════════════════════════════════╤════════════════════════════════════════════════════════╗
+║       contract.no_user.testnet │ account not found on [ testnet ]                       ║
+╟────────────────────────────────┼────────────────────────────────────────────────────────╢
+║                no_user.testnet │ account not found on [ testnet ]                       ║
+╚════════════════════════════════╧════════════════════════════════════════════════════════╝
+
+*/
+
+const path = require("path");
+
+const { table, createStream } = require("table");
+const chalk = require("chalk");
+
+const home = require("os").homedir();
+const credentials = path.resolve(home, ".near-credentials");
+
+const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
+
+(async () => {
+  const network = "testnet";
+  const accounts = await fetchAccounts(credentials, network);
+
+  console.log(chalk`
+  {bold Accounts Report}
+  `);
+
+  let errors = [];
+  let errorsReport = prepareErrorReport();
+  let data = ["account", "balance", "contract?", "storage used"].map((el) =>
+    chalk.bold(el)
+  );
+
+  let accountsReport = prepareAccountsReport();
+  accountsReport.write(data);
+
+  for (const account of Object.keys(accounts)) {
+    try {
+      const state = await fetchState(account);
+
+      data = [];
+      data.push(account);
+      data.push(`$ ${state.formattedAmount.split(".")[0]}`);
+      data.push(
+        (() => {
+          let contract = hasContract(state);
+          return contract ? chalk.green(contract) : chalk.red("None");
+        })()
+      );
+      data.push(`${state.storage_usage / 1000} kb`);
+      accountsReport.write(data);
+    } catch (error) {
+      if (/does not exist while viewing/.test(error)) {
+        errors.push([
+          account,
+          chalk`account {bold.red not found} on [ {bold ${network}} ]`,
+        ]);
+      }
+    }
+  }
+
+  console.log(chalk`
+
+  {bold.red Errors Report}
+  `);
+  console.log(errorsReport(errors));
+})();
+
+function prepareErrorReport() {
+  return (data) => {
+    return table(data, {
+      columnCount: 2,
+      columns: {
+        0: { width: 30, alignment: "right" },
+        1: { width: 54, alignment: "left" },
+      },
+    });
+  };
+}
+
+function prepareAccountsReport() {
+  return createStream({
+    columnDefault: { width: 16 },
+    columnCount: 4,
+    columns: {
+      0: { width: 30, alignment: "right" },
+      1: { alignment: "right" },
+      2: { alignment: "right" },
+      3: { alignment: "right" },
+    },
+  });
+}
