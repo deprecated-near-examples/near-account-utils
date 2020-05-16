@@ -33,7 +33,7 @@ Sample Report
 ║ contract1.another_user.testnet │   ed25519:2CrU9K │ FullAccess                               │   1   │            Local ║
 ╚════════════════════════════════╧══════════════════╧══════════════════════════════════════════╧═══════╧══════════════════╝
 
-  Errors Report
+  Errors
 
 ╔════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════╗
 ║       contract.no_user.testnet │ account not found on [ testnet ]                                                       ║
@@ -129,7 +129,7 @@ const {
 
   console.log(chalk`
 
-  {bold.red Errors Report}
+  {bold.red Errors}
   `);
   console.log(errorsReport(errors));
 })();

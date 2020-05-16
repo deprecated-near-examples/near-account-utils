@@ -33,16 +33,16 @@ Sample Report
 ╔════════════════════════════════╤══════════════════╤══════════════════╤══════════════════╗
 ║                        account │          balance │        contract? │     storage used ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
-║       contract1.a_user.testnet │             $ 99 │           5KjqNZ │        42.513 kb ║
+║       contract1.a_user.testnet │               99 │           5KjqNZ │        42.513 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
-║                 a_user.testnet │          $ 3,094 │             None │         0.388 kb ║
+║                 a_user.testnet │            3,094 │             None │         0.388 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
-║               demo_app.testnet │             $ 99 │           AdsqrQ │       102.218 kb ║
+║               demo_app.testnet │               99 │           AdsqrQ │       102.218 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
-║ contract1.another_user.testnet │             $ 99 │           Cy5sM6 │        41.102 kb ║
+║ contract1.another_user.testnet │               99 │           Cy5sM6 │        41.102 kb ║
 ╚════════════════════════════════╧══════════════════╧══════════════════╧══════════════════╝
 
-  Errors Report
+  Errors
 
 ╔════════════════════════════════╤════════════════════════════════════════════════════════╗
 ║       contract.no_user.testnet │ account not found on [ testnet ]                       ║
@@ -85,7 +85,7 @@ const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
 
       data = [];
       data.push(account);
-      data.push(`$ ${state.formattedAmount.split(".")[0]}`);
+      data.push(`${state.formattedAmount.split(".")[0]}`);
       data.push(
         (() => {
           let contract = hasContract(state);
@@ -106,7 +106,7 @@ const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
 
   console.log(chalk`
 
-  {bold.red Errors Report}
+  {bold.red Errors}
   `);
   console.log(errorsReport(errors));
 })();
