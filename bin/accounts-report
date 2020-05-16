@@ -11,18 +11,7 @@ files ending in .json
   Usage:
 
   yarn accounts
-
-
-Linux / macOS
--------------
-
-To find all TestNet accounts and copy them to your NEAR credentials folder
-
-(1) move to a top level folder containing all NEAR projects (ie. with neardev folders)
-(2) run this command:
-    find . -type f -name '*.testnet.json' -exec cp '{}' ~/.near-credentials ';'
-
-
+  
 
 Sample Report
 -------------
