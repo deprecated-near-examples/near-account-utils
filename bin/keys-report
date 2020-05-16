@@ -71,8 +71,8 @@ const {
     chalk.bold(el)
   );
 
-  let accountsReport = prepareAccountsReport();
-  accountsReport.write(data);
+  let keysReport = prepareKeysReport();
+  keysReport.write(data);
 
   for (const account of Object.keys(localAccounts)) {
     try {
@@ -115,7 +115,7 @@ const {
       data.push(nonces.join("\n"));
       data.push(statuses.join("\n"));
 
-      accountsReport.write(data);
+      keysReport.write(data);
     } catch (error) {
       if (/does not exist while viewing/.test(error)) {
         errors.push([
@@ -147,7 +147,7 @@ function prepareErrorReport() {
   };
 }
 
-function prepareAccountsReport() {
+function prepareKeysReport() {
   return createStream({
     columnDefault: { width: 16 },
     columnCount: 5,
