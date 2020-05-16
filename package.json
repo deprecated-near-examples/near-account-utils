@@ -6,6 +6,7 @@
   "scripts": {
     "accounts": "./bin/accounts-report",
     "keys": "./bin/keys-report",
+    "storage": "./bin/storage-report",
     "collect-keys": "find ~ -type f -name '*.testnet.json' -exec cp '{}' ~/.near-credentials ';'"
   },
   "keywords": [],
@@ -13,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.0.0",
+    "got": "^11.1.3",
     "near-api-js": "^0.25.1",
     "table": "^5.4.6"
   }

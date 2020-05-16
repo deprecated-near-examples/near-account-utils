@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+
+/*
+
+What is this?
+-------------
+
+Generate a report of decoded state stored on an account
+
+  Usage:
+
+  yarn state <account>
+  
+
+Sample Report
+-------------
+
+
+  Storage Report for dev-1588779149087
+
+╔═════════════════╤══════════════════════════════════════════════════════════════════════════════════╗
+║             key │ value                                                                            ║
+╟─────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
+║            m::0 │ {                                                                                ║
+║                 │   "premium": true,                                                               ║
+║                 │   "sender": "sherif.testnet",                                                    ║
+║                 │   "text": "hello there, here's 1 NEAR for you"                                   ║
+║                 │ }                                                                                ║
+╟─────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
+║            m::1 │ {                                                                                ║
+║                 │   "premium": false,                                                              ║
+║                 │   "sender": "sherif.testnet",                                                    ║
+║                 │   "text": "and here's a message that's not premium"                              ║
+║                 │ }                                                                                ║
+╟─────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
+║            m::2 │ {                                                                                ║
+║                 │   "premium": false,                                                              ║
+║                 │   "sender": "sherif.testnet",                                                    ║
+║                 │   "text": "one more?"                                                            ║
+║                 │ }                                                                                ║
+╟─────────────────┼──────────────────────────────────────────────────────────────────────────────────╢
+║           m:len │ 3                                                                                ║
+╚═════════════════╧══════════════════════════════════════════════════════════════════════════════════╝
+
+*/
+
+const path = require("path");
+
+const { table } = require("table");
+const chalk = require("chalk");
+
+const { fetchStorage } = require("../lib/utils");
+
+const account = process.argv.pop();
+// const account = "dev-1588779149087";
+
+if (account === __filename) {
+  console.log("Please provide an account name\n");
+  process.exit(1);
+}
+
+(async () => {
+  const network = "testnet";
+  const storage = await fetchStorage(account);
+  const values = JSON.parse(storage).result.values;
+
+  // console.log(JSON.stringify(values, null, 2));
+
+  if (values.length > 0) {
+    console.log(chalk`
+    {bold Storage Report for {yellow ${account}}}
+    `);
+
+    let header = ["key", "value"].map((el) => chalk.bold(el));
+
+    let data = [];
+    data.push(header);
+
+    for (const entry of values) {
+      row = [];
+      row.push(decode(entry.key));
+      row.push(format(decode(entry.value)));
+      data.push(row);
+    }
+
+    const output = table(data, {
+      columnCount: 2,
+      columns: {
+        0: { width: 15, alignment: "right" },
+        1: { width: 80, alignment: "left" },
+      },
+    });
+
+    console.log(output);
+  } else {
+    console.log(
+      chalk`{bold Storage Report for {yellow ${account}}: {red No records found}}`
+    );
+  }
+})();
+
+function decode(data, from = "base64", to = "utf8") {
+  return Buffer.from(data, from).toString(to);
+}
+
+function format(text) {
+  return JSON.stringify(JSON.parse(text), null, 2);
+}
