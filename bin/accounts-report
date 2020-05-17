@@ -24,7 +24,7 @@ Sample Report
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
 ║       contract1.a_user.testnet │               99 │           5KjqNZ │        42.513 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
-║                 a_user.testnet │            3,094 │             None │         0.388 kb ║
+║                 a_user.testnet │            3,094 │             none │         0.388 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
 ║               demo_app.testnet │               99 │           AdsqrQ │       102.218 kb ║
 ╟────────────────────────────────┼──────────────────┼──────────────────┼──────────────────╢
@@ -78,7 +78,7 @@ const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
       data.push(
         (() => {
           let contract = hasContract(state);
-          return contract ? chalk.green(contract) : chalk.red("None");
+          return contract ? chalk.green(contract) : "none";
         })()
       );
       data.push(`${state.storage_usage / 1000} kb`);

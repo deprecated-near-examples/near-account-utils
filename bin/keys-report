@@ -20,7 +20,7 @@ Sample Report
   Access Keys Report
 
 ╔════════════════════════════════╤══════════════════╤══════════════════════════════════════════╤═══════╤══════════════════╗
-║                        account │              key │ type                                     │ nonce │           status ║
+║                        account │       public key │ type                                     │ nonce │           status ║
 ╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
 ║       contract1.a_user.testnet │   ed25519:AiozBb │ FullAccess                               │   1   │            Local ║
 ╟────────────────────────────────┼──────────────────┼──────────────────────────────────────────┼───────┼──────────────────╢
@@ -67,7 +67,7 @@ const {
 
   let errors = [];
   let errorsReport = prepareErrorReport();
-  let data = ["account", "key", "type", "nonce", "status"].map((el) =>
+  let data = ["account", "public key", "type", "nonce", "status"].map((el) =>
     chalk.bold(el)
   );
 
@@ -105,7 +105,7 @@ const {
       const statuses = keys.map((key) =>
         key.public_key == localKey
           ? chalk`{green Local}`
-          : chalk`{red Not Found}`
+          : chalk`{red.bold Not Found}`
       );
 
       data = [];
