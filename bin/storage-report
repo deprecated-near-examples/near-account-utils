@@ -9,7 +9,7 @@ Generate a report of decoded state stored on an account
 
   Usage:
 
-  yarn state <account>
+  yarn storage <account>
   
 
 Sample Report
@@ -55,13 +55,28 @@ const account = process.argv.pop();
 // const account = "dev-1588779149087";
 
 if (account === __filename) {
-  console.log("Please provide an account name\n");
-  process.exit(1);
+  console.log(
+    chalk`{bold Storage Report: {red Please provide an account name}}`
+  );
+  console.log(`
+  Usage:
+
+  yarn storage <account>
+  `);
+  process.exit(0);
 }
 
 (async () => {
   const network = "testnet";
-  const storage = await fetchStorage(account);
+  const storage = await fetchStorage(account, network);
+
+  if (Object.keys(storage).length == 0) {
+    console.log(
+      chalk`{bold Storage Report for {yellow ${account}}: {red Invalid account}}`
+    );
+    return;
+  }
+
   const values = JSON.parse(storage).result.values;
 
   // console.log(JSON.stringify(values, null, 2));
