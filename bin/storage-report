@@ -79,8 +79,6 @@ if (account === __filename) {
 
   const values = JSON.parse(storage).result.values;
 
-  // console.log(JSON.stringify(values, null, 2));
-
   if (values.length > 0) {
     console.log(chalk`
     {bold Storage Report for {yellow ${account}}}
@@ -93,15 +91,15 @@ if (account === __filename) {
 
     for (const entry of values) {
       row = [];
-      row.push(decode(entry.key));
-      row.push(format(decode(entry.value)));
+      row.push(transcode(entry.key));
+      row.push(format(transcode(entry.value)));
       data.push(row);
     }
 
     const output = table(data, {
       columnCount: 2,
       columns: {
-        0: { width: 15, alignment: "right" },
+        0: { width: 30, alignment: "right" },
         1: { width: 80, alignment: "left" },
       },
     });
@@ -114,10 +112,18 @@ if (account === __filename) {
   }
 })();
 
-function decode(data, from = "base64", to = "utf8") {
+function transcode(data, from = "base64", to = "utf8") {
   return Buffer.from(data, from).toString(to);
 }
 
 function format(text) {
-  return JSON.stringify(JSON.parse(text), null, 2);
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch (error) {
+    console.log(
+      chalk`{bold.red Could not decode the following data:}
+      ${transcode(text, "utf8", "base64")}
+      `
+    );
+  }
 }
