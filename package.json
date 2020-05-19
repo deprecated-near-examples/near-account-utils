@@ -7,7 +7,8 @@
     "accounts": "./bin/accounts-report",
     "keys": "./bin/keys-report",
     "storage": "./bin/storage-report",
-    "collect-keys": "find ~ -type f -name '*.testnet.json' -exec cp '{}' ~/.near-credentials ';'"
+    "collect-keys": "find ~ -type f -name '*.testnet.json' -exec cp '{}' ~/.near-credentials ';'",
+    "sk2pk": "./bin/private-to-public-keys"
   },
   "keywords": [],
   "author": "",

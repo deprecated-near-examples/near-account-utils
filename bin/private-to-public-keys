@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+/*
+
+What is this?
+-------------
+
+Generate a public key matching given private key
+
+  Usage:
+
+  yarn sk2pk
+*/
+
+const chalk = require("chalk");
+
+const { publicKeyFromPrivate } = require("../lib/utils");
+
+const privateKey = process.argv.pop();
+
+if (privateKey === __filename) {
+  console.log(
+    chalk`{bold Private Key to Public Key: {red Please provide a valid private key}}`
+  );
+  console.log(`
+  Usage:
+
+  yarn sk2pk <secret-key>
+  `);
+  process.exit(0);
+}
+
+console.log(chalk`
+{bold Private Key:} ${privateKey}
+{bold Public Key:} ${publicKeyFromPrivate(privateKey)}
+`);
