@@ -67,7 +67,7 @@ if (account === __filename) {
 }
 
 (async () => {
-  const network = "testnet";
+  const network = process.env.NEAR_ENV || "testnet";
   const storage = await fetchStorage(account, network);
 
   if (Object.keys(storage).length == 0) {
