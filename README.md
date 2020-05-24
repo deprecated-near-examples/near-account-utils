@@ -35,7 +35,13 @@ files ending in .json
 
 _Expected Output_
 
-![Account Keys Report](/assets/keys-report-output.png)
+**Testnet**
+
+![Accounts Report Testnet](/assets/keys-report-output-testnet.png)
+
+**Localnet**
+
+![Accounts Report Localnet](/assets/keys-report-output-localnet.png)
 
 ## Storage Report
 

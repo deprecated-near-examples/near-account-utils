@@ -8,16 +8,20 @@ What is this?
 Generate a report of account keys on the NEAR network by scanning ~/.near-credentials for all
 files ending in .json
 
+Optionally specify the network or use Testnet by default
+`export NEAR_ENV=<network>`
+
   Usage:
 
   yarn keys
 
+  
 
 Sample Report
 -------------
 
 
-  Access Keys Report
+  Access Keys Report (for testnet)
 
 ╔════════════════════════════════╤══════════════════╤══════════════════════════════════════════╤═══════╤══════════════════╗
 ║                        account │       public key │ type                                     │ nonce │           status ║
@@ -58,11 +62,11 @@ const {
 } = require("../lib/utils");
 
 (async () => {
-  const network = "testnet";
+  const network = process.env.NEAR_ENV || "testnet";
   const localAccounts = await fetchAccounts(credentials, network);
 
   console.log(chalk`
-  {bold Access Keys Report}
+  {bold Access Keys Report} ( for ${network} )
   `);
 
   let errors = [];
@@ -77,36 +81,59 @@ const {
   for (const account of Object.keys(localAccounts)) {
     try {
       const localKey = publicKeyFromFile(localAccounts[account]);
-      const keys = await fetchAccessKeys(account);
+      let keys = await fetchAccessKeys(account);
 
-      const pks = keys.map((key) => key.public_key.slice(0, 14));
+      let pks = []
+      let types = []
+      let nonces = []
+      let statuses = []
 
-      const types = keys.map((entry) => {
-        let key = entry.access_key.permission;
-        switch (typeof key) {
-          case "string":
-            return chalk`{yellow ${key}}`;
-            break;
+      if(keys.length > 0) {
+        pks = keys.map((key) => key.public_key.slice(0, 14));
 
-          case "object":
-            let type = Object.keys(key);
-            let details = Object.values(key)[0];
-            return chalk`{cyan ${type}} ( ${details.receiver_id} )`;
-            break;
+        types = keys.map((entry) => {
+          let key = entry.access_key.permission;
+          switch (typeof key) {
+            case "string":
+              return chalk`{yellow.bold ${key}}`;
 
-          default:
-            throw new Error(`Unrecognized key type:[ ${key} ]`);
-            break;
+            case "object":
+              let type = Object.keys(key);
+              let details = Object.values(key)[0];
+              return chalk`{cyan.bold ${type}} ( ${details.receiver_id} )`;
+
+            default:
+              throw new Error(`Unrecognized key type:[ ${key} ]`);
+          }
+        });
+
+        nonces = keys.map((entry) => entry.access_key.nonce);
+
+        keys = keys.map(key => key.public_key)
+
+        statuses = keys.map((pk) =>
+          pk == localKey
+            ? chalk`{green.bold Local}`
+            : chalk`{red.bold Not Found}`
+        );
+
+        statuses = keys.map((pk) =>
+          pk == localKey ? chalk`{green.bold Local}` : chalk`{red.bold Not Found}`
+        )
+
+        if (!keys.includes(localKey)) {
+          pks.push(localKey.slice(0, 14))
+          types.push(chalk`{cyan.bold Unknown}`)
+          nonces.push(chalk`{cyan.bold -}`)
+          statuses.push(chalk`{cyan.bold Local}`)
         }
-      });
 
-      const nonces = keys.map((entry) => entry.access_key.nonce);
-
-      const statuses = keys.map((key) =>
-        key.public_key == localKey
-          ? chalk`{green Local}`
-          : chalk`{red.bold Not Found}`
-      );
+      } else {
+        pks = [chalk`{cyan.bold No Public Keys}`]
+        types.push(chalk`{cyan.bold -}`)
+        nonces.push(chalk`{cyan.bold -}`)
+        statuses.push(chalk`{cyan.bold -}`)
+      }
 
       data = [];
       data.push(account);
@@ -135,6 +162,8 @@ const {
   `);
     console.log(errorsReport(errors));
   }
+
+  console.log() // finish the report stream
 })();
 
 function prepareErrorReport() {
@@ -142,8 +171,8 @@ function prepareErrorReport() {
     return table(data, {
       columnCount: 2,
       columns: {
-        0: { width: 30, alignment: "right" },
-        1: { width: 86, alignment: "left" },
+        0: { width: 30, alignment: 'right' },
+        1: { width: 79, alignment: 'left' },
       },
     });
   };
@@ -154,11 +183,11 @@ function prepareKeysReport() {
     columnDefault: { width: 16 },
     columnCount: 5,
     columns: {
-      0: { width: 30, alignment: "right" },
-      1: { alignment: "right" },
-      2: { width: 40, alignment: "left" },
-      3: { width: 5, alignment: "center" },
-      4: { alignment: "right" },
+      0: { width: 30, alignment: 'right' },
+      1: { alignment: 'right' },
+      2: { width: 35, alignment: 'left' },
+      3: { width: 9, alignment: 'center' },
+      4: { width: 10,alignment: 'right' },
     },
   });
 }
