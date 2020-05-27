@@ -52,11 +52,11 @@ const credentials = path.resolve(home, ".near-credentials");
 const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
 
 (async () => {
-  const network = "testnet";
+  const network = process.env.NEAR_ENV || "testnet";
   const accounts = await fetchAccounts(credentials, network);
 
   console.log(chalk`
-  {bold Accounts Report}
+  {bold Accounts Report} ( for ${network} )
   `);
 
   let errors = [];
@@ -100,6 +100,8 @@ const { fetchAccounts, fetchState, hasContract } = require("../lib/utils");
   `);
     console.log(errorsReport(errors));
   }
+
+  console.log() // finish the report stream
 })();
 
 function prepareErrorReport() {

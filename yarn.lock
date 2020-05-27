@@ -145,6 +145,11 @@ chalk@^4.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chardet@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chardet/-/chardet-1.1.0.tgz#c653dfc04731e8bfa90da4fd4968d69129d72b12"
+  integrity sha512-K6BWWdt9ncg6TDTX42J57s9zZWVI1DXVYQ6zUM8dZUB2TDeV5ia4kDei19r/pMxNzSGYYf6LqHsyvEybvTPHuA==
+
 clone-response@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/clone-response/-/clone-response-1.0.2.tgz#d1dc973920314df67fbeb94223b4ee350239e96b"

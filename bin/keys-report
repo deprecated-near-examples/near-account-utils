@@ -172,7 +172,7 @@ function prepareErrorReport() {
       columnCount: 2,
       columns: {
         0: { width: 30, alignment: 'right' },
-        1: { width: 79, alignment: 'left' },
+        1: { width: 80, alignment: 'left' },
       },
     });
   };
@@ -186,7 +186,7 @@ function prepareKeysReport() {
       0: { width: 30, alignment: 'right' },
       1: { alignment: 'right' },
       2: { width: 35, alignment: 'left' },
-      3: { width: 9, alignment: 'center' },
+      3: { width: 10, alignment: 'center' },
       4: { width: 10,alignment: 'right' },
     },
   });

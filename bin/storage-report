@@ -49,6 +49,8 @@ const path = require("path");
 const { table } = require("table");
 const chalk = require("chalk");
 
+const chardet = require('chardet'); // character encoding detection
+
 const { fetchStorage } = require("../lib/utils");
 
 const account = process.argv.pop();
@@ -112,17 +114,38 @@ if (account === __filename) {
   }
 })();
 
-function transcode(data, from = "base64", to = "utf8") {
-  return Buffer.from(data, from).toString(to);
+function transcode(data, source = "base64", target = "utf8") {
+  const ENCODINGS = [
+    "ascii", // For 7 bit ASCII data only. This encoding method is very fast, and will strip the high bit if set.
+    "base64", // An efficient (power of 2) and safe (over the wire) encoding format used to move data around the interwebs
+    "binary", // A way of encoding raw binary data into strings by using only the first 8 bits of each character.
+    "ucs2", // 2-bytes, little endian encoded Unicode characters. It can encode only BMP(Basic Multilingual Plane, U+0000 - U+FFFF).
+    "utf8", // Multi byte encoded Unicode characters. Many web pages and other document formats use UTF-8.
+  ];
+
+  if(!ENCODINGS.includes(source) || !ENCODINGS.includes(target)) {
+    throw new Error(`Unsupported transcoding: ${source} --> ${target}`)
+  }
+
+  return Buffer.from(data, source).toString(target);
 }
 
 function format(text) {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);
   } catch (error) {
-    console.log(
-      chalk`{bold.red Could not decode the following data:}
-      ${transcode(text, "utf8", "base64")}
+    const encoding = chardet.detect(Buffer.from(text));
+    const analysis = chardet.analyse(Buffer.from(text))
+
+    console.log(chalk`{bold.red Could not decode some data in storage}`)
+    // console.log()
+    // console.log(chalk`{bold It could be one of these encodings:}`)
+    // console.log(analysis)
+    console.log(`
+      (found ${encoding} data)
+
+      ${text} <--> ${transcode(text, 'binary', 'utf8')}
+      ${text} <--> ${transcode(text, 'utf8', 'base64')}
       `
     );
   }
