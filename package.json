@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "(MIT AND Apache-2.0)",
   "dependencies": {
     "chalk": "^4.0.0",
     "chardet": "^1.1.0",
