@@ -10,7 +10,7 @@ Generate a report of decoded state stored on an account
   Usage:
 
   yarn storage <account>
-  
+
 
 Sample Report
 -------------
@@ -134,19 +134,19 @@ function format(text) {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);
   } catch (error) {
-    const encoding = chardet.detect(Buffer.from(text));
-    const analysis = chardet.analyse(Buffer.from(text))
+    // const encoding = chardet.detect(Buffer.from(text));
+    // const analysis = chardet.analyse(Buffer.from(text))
 
-    console.log(chalk`{bold.red Could not decode some data in storage}`)
-    // console.log()
-    // console.log(chalk`{bold It could be one of these encodings:}`)
-    // console.log(analysis)
-    console.log(`
-      (found ${encoding} data)
+    // console.log(chalk`{bold.red Could not decode some data in storage}`)
+    // // console.log()
+    // // console.log(chalk`{bold It could be one of these encodings:}`)
+    // // console.log(analysis)
+    // console.log(`
+    //   (found ${encoding} data)
 
-      ${text} <--> ${transcode(text, 'binary', 'utf8')}
-      ${text} <--> ${transcode(text, 'utf8', 'base64')}
-      `
-    );
+    //   ${text} <--> ${transcode(text, 'binary', 'utf8')}
+    //   ${text} <--> ${transcode(text, 'utf8', 'base64')}
+    //   `
+    // );
   }
 }
