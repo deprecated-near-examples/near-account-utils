@@ -171,8 +171,8 @@ function prepareErrorReport() {
     return table(data, {
       columnCount: 2,
       columns: {
-        0: { width: 30, alignment: 'right' },
-        1: { width: 80, alignment: 'left' },
+        0: { width: 35, alignment: 'right' },
+        1: { width: 100, alignment: 'left' },
       },
     });
   };
@@ -183,10 +183,10 @@ function prepareKeysReport() {
     columnDefault: { width: 16 },
     columnCount: 5,
     columns: {
-      0: { width: 30, alignment: 'right' },
+      0: { width: 35, alignment: 'right' },
       1: { alignment: 'right' },
-      2: { width: 35, alignment: 'left' },
-      3: { width: 10, alignment: 'center' },
+      2: { width: 50, alignment: 'left' },
+      3: { width: 15, alignment: 'left' },
       4: { width: 10,alignment: 'right' },
     },
   });
