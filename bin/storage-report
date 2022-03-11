@@ -114,6 +114,22 @@ if (account === __filename) {
   }
 })();
 
+function convert_unprintable_characters(str, hex) {
+  var result = [];
+  var replaced = false;
+  for (var n = 0, l = str.length; n < l; n++) {
+    code = str.charCodeAt(n);
+    if (code < 32 || code == 127 || code == 255 || code == 65533) {
+      var char = "[0x" + hex.substr(n * 2, 2) + "]";
+      replaced = true;
+    } else {
+      var char = str[n]
+    }
+    result.push(char);
+  }
+  return (replaced ? chalk`{yellow {bold NOTICE: Non-printable bytes are shown with [0xNN]}}\n\n` : "") + result.join("");
+}
+
 function transcode(data, source = "base64", target = "utf8") {
   const ENCODINGS = [
     "ascii", // For 7 bit ASCII data only. This encoding method is very fast, and will strip the high bit if set.
@@ -127,13 +143,15 @@ function transcode(data, source = "base64", target = "utf8") {
     throw new Error(`Unsupported transcoding: ${source} --> ${target}`)
   }
 
-  return Buffer.from(data, source).toString(target);
+  hex = Buffer.from(data, source).toString("hex")
+  return convert_unprintable_characters(Buffer.from(data, source).toString(target), hex);
 }
 
 function format(text) {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);
   } catch (error) {
+    return text
     // const encoding = chardet.detect(Buffer.from(text));
     // const analysis = chardet.analyse(Buffer.from(text))
 
